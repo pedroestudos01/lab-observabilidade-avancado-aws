@@ -58,12 +58,11 @@ def lambda_handler(event, context):
             
             # 6. Upload para o bucket de destino
             s3.put_object(
-                Bucket=dest_bucket,
-                Key=dest_key,
-                Body=buffer,
-                ContentType=f'image/{format.lower()}',
-                ACL='public-read' # Importante para o frontend conseguir ler
-            )
+             Bucket=dest_bucket,
+             Key=dest_key,
+             Body=buffer,
+             ContentType=f'image/{format.lower()}'
+         )
             
             print(f"Sucesso! Imagem salva em: {dest_bucket}/{dest_key}")
             

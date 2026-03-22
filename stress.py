@@ -4,7 +4,7 @@ import time
 import sys
 
 # URL da aplicação (ajuste para o seu Load Balancer ou IP Público)
-TARGET_URL = "http://seu-load-balancer-aws.com/"
+TARGET_URL = ALB-App-Lab-avancado-1095200832.us-east-1.elb.amazonaws.com
 
 # Configurações do Stress Test
 TOTAL_REQUESTS = 2000
