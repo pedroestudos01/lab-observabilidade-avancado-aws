@@ -1,0 +1,19 @@
+#!/bin/bash
+# 1. Atualiza o Linux e instala o Docker e o Git
+apt-get update -y
+apt-get install docker.io git -y
+systemctl start docker
+systemctl enable docker
+
+# 2. Entra na pasta principal
+cd /home/ubuntu
+
+# 3. Baixa o seu código do GitHub (SUBSTITUA O LINK ABAIXO!)
+git clone https://github.com/pedroestudos01/lab-observabilidade-avancado-aws.git
+cd app-lab2
+
+# 4. Constrói a imagem Docker baseada no seu Dockerfile
+docker build -t app-lab2-image .
+
+# 5. Roda o container liberando a porta 80
+docker run -d -p 80:80 --restart always app-lab2-image
