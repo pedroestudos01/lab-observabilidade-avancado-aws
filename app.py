@@ -12,7 +12,7 @@ PROCESSED_BUCKET = 'lab-avancado-processed-images-estudos'
 REGION = 'us-east-1' # Ajuste conforme sua região
 
 # Configurações RDS
-DB_HOST = 'seu-rds-endpoint.amazonaws.com'
+DB_HOST = 'lab-avancado-db.c8fak4e4wiz3.us-east-1.rds.amazonaws.com'
 DB_USER = 'admin'
 DB_NAME = 'perfil_db'
 
