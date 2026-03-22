@@ -6,12 +6,13 @@ from botocore.exceptions import ClientError
 
 app = Flask(__name__)
 
-# Configurações AWS (Buckets)
+# --- Configurações AWS ---
+# Confirme se estes são os nomes exatos dos seus buckets criados no S3!
 RAW_BUCKET = 'lab-avancado-raw-images-estudos'
 PROCESSED_BUCKET = 'lab-avancado-processed-images-estudos'
-REGION = 'us-east-1' # Ajuste conforme sua região
+REGION = 'us-east-1'
 
-# Configurações RDS
+# --- Configurações RDS ---
 DB_HOST = 'lab-avancado-db.c8fak4e4wiz3.us-east-1.rds.amazonaws.com'
 DB_USER = 'admin'
 DB_NAME = 'perfil_db'
@@ -26,12 +27,19 @@ def get_db_password():
         print(f"Erro ao buscar senha no SSM: {e}")
         return None
 
-def get_db_connection():
-    """Estabelece conexão com o MySQL no RDS."""
+def get_base_connection():
+    """Conecta ao servidor MySQL globalmente, sem especificar um banco."""
     password = get_db_password()
-    if not password:
-        raise Exception("Não foi possível obter a senha do banco de dados.")
-    
+    return pymysql.connect(
+        host=DB_HOST,
+        user=DB_USER,
+        password=password,
+        cursorclass=pymysql.cursors.DictCursor
+    )
+
+def get_db_connection():
+    """Conecta especificamente ao banco 'perfil_db' para o uso diário."""
+    password = get_db_password()
     return pymysql.connect(
         host=DB_HOST,
         user=DB_USER,
@@ -41,10 +49,18 @@ def get_db_connection():
     )
 
 def init_db():
-    """Cria a tabela de usuários se não existir."""
+    """Cria o banco de dados e a tabela se eles não existirem."""
     try:
-        conn = get_db_connection()
-        with conn.cursor() as cursor:
+        # 1. Usa a conexão global para CRIAR a "sala" (banco de dados)
+        conn_base = get_base_connection()
+        with conn_base.cursor() as cursor:
+            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME}")
+        conn_base.commit()
+        conn_base.close()
+
+        # 2. Entra na "sala" recém-criada e constrói a tabela de usuários
+        conn_db = get_db_connection()
+        with conn_db.cursor() as cursor:
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS usuarios (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -54,11 +70,11 @@ def init_db():
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """)
-        conn.commit()
-        conn.close()
-        print("Tabela 'usuarios' verificada/criada com sucesso.")
+        conn_db.commit()
+        conn_db.close()
+        print(f"Banco '{DB_NAME}' e tabela 'usuarios' prontos para uso!")
     except Exception as e:
-        print(f"Erro ao inicializar banco de dados: {e}")
+        print(f"Erro crítico ao inicializar o banco de dados: {e}")
 
 @app.route('/')
 def index():
@@ -83,8 +99,7 @@ def cadastrar_perfil():
     except ClientError as e:
         return jsonify({"error": f"Erro no upload S3: {e}"}), 500
 
-    # 2. Salvar metadados no RDS
-    # A URL da foto aponta para o bucket PROCESSADO (onde a Lambda salvará o thumbnail)
+    # 2. Salvar metadados no RDS apontando para a foto PROCESSADA
     foto_url_processada = f"https://{PROCESSED_BUCKET}.s3.amazonaws.com/processed/{file_name.split('/')[-1]}"
     
     try:
@@ -112,6 +127,8 @@ def listar_perfis():
     except Exception as e:
         return jsonify({"error": f"Erro ao listar perfis: {e}"}), 500
 
+# Executa a criação do banco assim que o código sobe
+init_db()
+
 if __name__ == '__main__':
-    init_db()
-    app.run(host='0.0.0.0', port=3000, debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True)
