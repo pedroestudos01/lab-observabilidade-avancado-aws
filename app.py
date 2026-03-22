@@ -1,6 +1,7 @@
 import os
 import boto3
 import pymysql
+import math
 from flask import Flask, request, jsonify, render_template
 from botocore.exceptions import ClientError
 
@@ -75,6 +76,15 @@ def init_db():
         print(f"Banco '{DB_NAME}' e tabela 'usuarios' prontos para uso!")
     except Exception as e:
         print(f"Erro crítico ao inicializar o banco de dados: {e}")
+        
+@app.route('/stress')
+def stress_cpu():
+    """Rota criada exclusivamente para fritar a CPU e testar o Auto Scaling"""
+    resultado = 0
+    # Faz a CPU calcular a raiz quadrada de 5 milhões de números
+    for i in range(5000000):
+        resultado += math.sqrt(i)
+    return jsonify({"message": "CPU estressada com sucesso!", "calculo": resultado})
 
 @app.route('/')
 def index():

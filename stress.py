@@ -4,10 +4,10 @@ import time
 import sys
 
 # URL da aplicação (ajuste para o seu Load Balancer ou IP Público)
-TARGET_URL = "ALB-App-Lab-avancado-1095200832.us-east-1.elb.amazonaws.com"
+TARGET_URL = "http://ALB-App-Lab-avancado-1095200832.us-east-1.elb.amazonaws.com"
 
 # Configurações do Stress Test
-TOTAL_REQUESTS = 2000
+TOTAL_REQUESTS = 70000
 CONCURRENT_THREADS = 50
 
 def send_request(request_id):
