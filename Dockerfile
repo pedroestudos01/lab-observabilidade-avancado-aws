@@ -1,5 +1,5 @@
 # Usa o Python oficial e mais leve
-FROM python:3.14-slim
+FROM python:3.12-slim
 
 # Define a pasta de trabalho lá dentro
 WORKDIR /app
