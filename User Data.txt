@@ -12,7 +12,7 @@ cd /home/ubuntu
 git clone https://github.com/pedroestudos01/lab-observabilidade-avancado-aws.git
 cd app-lab2
 
-# 4. Constrói a imagem Docker baseada no seu Dockerfile
+# 4. Constrói a imagem Docker baseada no seu Dockerfile.
 docker build -t app-lab2-image .
 
 # 5. Roda o container liberando a porta 80
